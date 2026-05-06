@@ -13,10 +13,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3
-      - run: uv pip install ruff mypy --system
-      - run: ruff check src/ tests/
-      - run: ruff format --check src/ tests/
-      - run: mypy src/ --ignore-missing-imports --no-error-summary
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: uv venv .venv
+      - run: uv pip install ruff mypy --python .venv/bin/python
+      - run: .venv/bin/ruff check src/ tests/
+      - run: .venv/bin/ruff format --check src/ tests/
+      - run: .venv/bin/mypy src/ --ignore-missing-imports --no-error-summary
 
   test:
     name: Unit & Integration Tests
@@ -24,12 +28,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
       - name: Install dependencies
-        run: uv pip install -r requirements.txt --system
+        run: |
+          uv venv .venv
+          uv pip install -r requirements.txt --python .venv/bin/python
 
       - name: Run unit + integration tests
-        run: pytest tests/unit/ tests/integration/ -v --cov=src --cov-report=xml --cov-fail-under=70
+        run: .venv/bin/pytest tests/unit/ tests/integration/ -v --cov=src --cov-report=xml --cov-fail-under=70
 
       - name: Upload coverage
         uses: codecov/codecov-action@v4
