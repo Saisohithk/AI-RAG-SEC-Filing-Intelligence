@@ -32,7 +32,7 @@ def test_ollama_provider_returns_correct_class():
         # Mock Ollama so we don't need a real Ollama server running
         mock_ollama.return_value = mock_ollama
 
-        llm = get_llm("ollama")
+        get_llm("ollama")
 
         # Verify Ollama was instantiated
         mock_ollama.assert_called_once()

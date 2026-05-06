@@ -18,7 +18,6 @@ Auto-selection logic:
   - JINA_API_KEY not set    → use LocalEmbedder (no API key, works offline)
 """
 
-import asyncio
 import logging
 import time
 from typing import Any

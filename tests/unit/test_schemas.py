@@ -13,7 +13,6 @@ Run with: pytest tests/unit/test_schemas.py -v
 import pytest
 from src.core.schemas import (
     ChatMessage,
-    HealthStatus,
     IngestRequest,
     LatencyBreakdown,
     QueryRequest,

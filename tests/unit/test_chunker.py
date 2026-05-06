@@ -11,7 +11,6 @@ Run with: pytest tests/test_chunker.py -v
 """
 
 import pytest
-from langchain_core.documents import Document
 
 from src.ingestion.chunker import SECChunker
 

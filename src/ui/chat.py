@@ -206,9 +206,9 @@ def _render_streaming(
         full_text += token
         text_el.markdown(full_text + "▌")
 
-    def on_done(s: list[Source], l: LatencyBreakdown) -> None:
+    def on_done(s: list[Source], lat: LatencyBreakdown) -> None:
         nonlocal sources, latency
-        sources, latency = s, l
+        sources, latency = s, lat
 
     def on_error(msg: str) -> None:
         nonlocal error_occurred

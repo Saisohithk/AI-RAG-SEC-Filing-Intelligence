@@ -25,7 +25,6 @@ from requests.exceptions import Timeout
 
 from src.core.logging_config import handle_errors, log_call
 from src.core.schemas import (
-    ChatMessage,
     HealthStatus,
     IngestRequest,
     LatencyBreakdown,

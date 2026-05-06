@@ -429,8 +429,6 @@ def _run_ingestion_pipeline(tickers: list[str], num_filings: int) -> dict:
     Download SEC filings → chunk → embed → upsert → rebuild BM25 → persist index.
     Works both as an RQ job function and a FastAPI BackgroundTask coroutine.
     """
-    import asyncio
-
     logger.info(f"Ingestion starting for: {tickers}")
     chunker = SECChunker(settings.CHUNK_SIZE, settings.CHUNK_OVERLAP)
     stored = 0

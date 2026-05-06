@@ -14,7 +14,6 @@ Run with: pytest tests/test_hybrid_search.py -v
 from unittest.mock import MagicMock
 
 import pytest
-from langchain_core.documents import Document
 
 from src.retrieval.hybrid_search import HybridSearcher
 

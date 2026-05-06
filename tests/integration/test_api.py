@@ -12,7 +12,6 @@ import pytest
 from fastapi.testclient import TestClient
 from langchain_core.documents import Document
 
-import src.api.app  # ensure module is imported before any patch resolves the target
 
 
 @pytest.fixture

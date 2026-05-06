@@ -148,7 +148,6 @@ def format_context(documents: list) -> str:
 
     for i, doc in enumerate(documents, 1):
         source = doc.metadata.get("source", "Unknown")
-        ticker = doc.metadata.get("ticker", "?")
         rerank_score = doc.metadata.get("rerank_score", None)
 
         # Add score to context label for transparency
