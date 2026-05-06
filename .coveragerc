@@ -1,0 +1,21 @@
+[run]
+source = src
+omit =
+    # Streamlit UI — requires a display and browser session
+    src/ui/*
+    # HTTP client — covered indirectly via integration tests
+    src/utils/*
+    # Requires Jina API key or model download in CI
+    src/ingestion/embedder.py
+    # Requires live SEC EDGAR network access
+    src/ingestion/downloader.py
+    # Decorator utilities — covered when decorators fire during other tests
+    src/core/logging_config.py
+    # Thin shim re-exporting app
+    src/api/main.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if TYPE_CHECKING:
+    raise NotImplementedError
