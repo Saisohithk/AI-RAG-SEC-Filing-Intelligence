@@ -20,41 +20,41 @@ class Settings(BaseSettings):
     """
 
     # --- API Keys ---
-    JINA_API_KEY: str = ""               # Jina AI embeddings (jina.ai)
-    PINECONE_API_KEY: str = ""           # Pinecone vector DB (app.pinecone.io)
-    GROQ_API_KEY: str = ""               # Groq fast inference (console.groq.com)
-    GOOGLE_API_KEY: str = ""             # Google Gemini (aistudio.google.com)
-    LANGSMITH_API_KEY: str = ""          # LangSmith tracing (smith.langchain.com)
+    JINA_API_KEY: str = ""  # Jina AI embeddings (jina.ai)
+    PINECONE_API_KEY: str = ""  # Pinecone vector DB (app.pinecone.io)
+    GROQ_API_KEY: str = ""  # Groq fast inference (console.groq.com)
+    GOOGLE_API_KEY: str = ""  # Google Gemini (aistudio.google.com)
+    LANGSMITH_API_KEY: str = ""  # LangSmith tracing (smith.langchain.com)
 
     # --- Security ---
-    API_KEY: str = ""                    # If set, X-API-Key header is required on all endpoints
-    ALLOWED_ORIGINS: str = "*"           # Comma-separated CORS origins; "*" allows all
+    API_KEY: str = ""  # If set, X-API-Key header is required on all endpoints
+    ALLOWED_ORIGINS: str = "*"  # Comma-separated CORS origins; "*" allows all
 
     # --- Redis (optional — enables caching and job queue) ---
-    REDIS_URL: str = ""                  # e.g. redis://localhost:6379/0
+    REDIS_URL: str = ""  # e.g. redis://localhost:6379/0
 
     # --- Pinecone Vector Store ---
     PINECONE_INDEX_NAME: str = "sec-rag"  # Name of the Pinecone index
-    PINECONE_DIMENSION: int = 768         # Jina embeddings output 768 dimensions
+    PINECONE_DIMENSION: int = 768  # Jina embeddings output 768 dimensions
 
     # --- LangSmith Observability ---
-    LANGCHAIN_TRACING_V2: str = "true"    # Enable LangSmith tracing
-    LANGCHAIN_PROJECT: str = "sec-rag"    # Project name in LangSmith dashboard
+    LANGCHAIN_TRACING_V2: str = "true"  # Enable LangSmith tracing
+    LANGCHAIN_PROJECT: str = "sec-rag"  # Project name in LangSmith dashboard
 
     # --- Local Ollama (runs on your machine, no API key) ---
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     OLLAMA_MODEL: str = "llama3.2"
 
     # --- Text Chunking ---
-    CHUNK_SIZE: int = 512      # Max characters per chunk
-    CHUNK_OVERLAP: int = 64    # Overlap between chunks (preserves context at boundaries)
+    CHUNK_SIZE: int = 512  # Max characters per chunk
+    CHUNK_OVERLAP: int = 64  # Overlap between chunks (preserves context at boundaries)
 
     # --- Retrieval ---
     TOP_K_RETRIEVAL: int = 20  # Fetch top 20 candidates from hybrid search
-    TOP_K_RERANK: int = 5      # Keep top 5 after BGE reranker (quality filter)
+    TOP_K_RERANK: int = 5  # Keep top 5 after BGE reranker (quality filter)
 
     # --- Vector Store Selection ---
-    USE_LOCAL_CHROMA: bool = False          # True = ChromaDB (local), False = Pinecone (cloud)
+    USE_LOCAL_CHROMA: bool = False  # True = ChromaDB (local), False = Pinecone (cloud)
     CHROMA_PERSIST_DIR: str = "./chroma_db"  # Where ChromaDB saves data locally
 
     # --- Default LLM ---
@@ -65,6 +65,7 @@ class Settings(BaseSettings):
 
     def __repr__(self) -> str:
         """Mask secret values to prevent accidental log leakage."""
+
         def _mask(v: str) -> str:
             return f"{v[:4]}***" if len(v) > 4 else "***"
 

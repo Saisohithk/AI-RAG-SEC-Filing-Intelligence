@@ -10,6 +10,7 @@ What we're testing:
 
 Run with: pytest tests/unit/test_schemas.py -v
 """
+
 import pytest
 from src.core.schemas import (
     ChatMessage,
@@ -23,25 +24,35 @@ from src.core.schemas import (
 
 class TestSource:
     def test_clamps_rerank_score_above_one(self):
-        src = Source(ticker="AAPL", filing_date="2024", chunk_text="x", rerank_score=1.8)
+        src = Source(
+            ticker="AAPL", filing_date="2024", chunk_text="x", rerank_score=1.8
+        )
         assert src.rerank_score == 1.0
 
     def test_clamps_rerank_score_below_zero(self):
-        src = Source(ticker="AAPL", filing_date="2024", chunk_text="x", rerank_score=-0.5)
+        src = Source(
+            ticker="AAPL", filing_date="2024", chunk_text="x", rerank_score=-0.5
+        )
         assert src.rerank_score == 0.0
 
     def test_handles_non_numeric_score(self):
-        src = Source(ticker="AAPL", filing_date="2024", chunk_text="x", rerank_score="bad")
+        src = Source(
+            ticker="AAPL", filing_date="2024", chunk_text="x", rerank_score="bad"
+        )
         assert src.rerank_score == 0.0
 
     def test_valid_score_unchanged(self):
-        src = Source(ticker="AAPL", filing_date="2024", chunk_text="x", rerank_score=0.75)
+        src = Source(
+            ticker="AAPL", filing_date="2024", chunk_text="x", rerank_score=0.75
+        )
         assert src.rerank_score == 0.75
 
 
 class TestQueryRequest:
     def test_valid_request(self):
-        req = QueryRequest(question="What is Apple's revenue?", provider="groq", top_k=5)
+        req = QueryRequest(
+            question="What is Apple's revenue?", provider="groq", top_k=5
+        )
         assert req.question == "What is Apple's revenue?"
         assert req.provider == "groq"
         assert req.top_k == 5
@@ -73,7 +84,9 @@ class TestIngestRequest:
 
 class TestLatencyBreakdown:
     def test_stage_dict_returns_three_stages(self):
-        lb = LatencyBreakdown(retrieve_ms=100.0, rerank_ms=200.0, generate_ms=300.0, total_ms=600.0)
+        lb = LatencyBreakdown(
+            retrieve_ms=100.0, rerank_ms=200.0, generate_ms=300.0, total_ms=600.0
+        )
         d = lb.stage_dict
         assert set(d.keys()) == {"Retrieve", "Rerank", "Generate"}
         assert d["Retrieve"] == 100.0
@@ -107,8 +120,20 @@ class TestQueryResponse:
     def test_from_api_dict_builds_correctly(self):
         raw = {
             "answer": "Apple revenue was $383B",
-            "sources": [{"ticker": "AAPL", "filing_date": "2024", "chunk_text": "test", "rerank_score": 0.9}],
-            "latency_ms": {"retrieve_ms": 100, "rerank_ms": 50, "generate_ms": 300, "total_ms": 450},
+            "sources": [
+                {
+                    "ticker": "AAPL",
+                    "filing_date": "2024",
+                    "chunk_text": "test",
+                    "rerank_score": 0.9,
+                }
+            ],
+            "latency_ms": {
+                "retrieve_ms": 100,
+                "rerank_ms": 50,
+                "generate_ms": 300,
+                "total_ms": 450,
+            },
             "provider": "groq",
         }
         resp = QueryResponse.from_api_dict(raw)

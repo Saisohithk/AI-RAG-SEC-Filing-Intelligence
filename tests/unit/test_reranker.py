@@ -23,7 +23,9 @@ def mock_reranker():
 
 
 def _make_doc(text: str, ticker: str = "AAPL") -> Document:
-    return Document(page_content=text, metadata={"ticker": ticker, "chunk_id": text[:16]})
+    return Document(
+        page_content=text, metadata={"ticker": ticker, "chunk_id": text[:16]}
+    )
 
 
 class TestBGERerankerEmpty:
@@ -35,7 +37,11 @@ class TestBGERerankerEmpty:
 class TestBGERerankerOrdering:
     def test_documents_sorted_by_score_descending(self, mock_reranker):
         reranker, mock_ce = mock_reranker
-        docs = [_make_doc("low relevance"), _make_doc("high relevance"), _make_doc("medium")]
+        docs = [
+            _make_doc("low relevance"),
+            _make_doc("high relevance"),
+            _make_doc("medium"),
+        ]
         mock_ce.predict.return_value = [0.2, 0.9, 0.5]
 
         result = reranker.rerank("query", docs, top_k=3)
@@ -76,10 +82,12 @@ class TestBGERerankerScoreAttachment:
 
     def test_original_metadata_preserved(self, mock_reranker):
         reranker, mock_ce = mock_reranker
-        docs = [Document(
-            page_content="MSFT cloud revenue",
-            metadata={"ticker": "MSFT", "filing_date": "2024", "chunk_id": "c1"},
-        )]
+        docs = [
+            Document(
+                page_content="MSFT cloud revenue",
+                metadata={"ticker": "MSFT", "filing_date": "2024", "chunk_id": "c1"},
+            )
+        ]
         mock_ce.predict.return_value = [0.75]
 
         result = reranker.rerank("cloud revenue", docs, top_k=1)

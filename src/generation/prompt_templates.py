@@ -26,10 +26,11 @@ from langchain_core.prompts import ChatPromptTemplate
 # Used by: api/main.py to generate answers
 # ============================================================
 
-SEC_RAG_PROMPT = ChatPromptTemplate.from_messages([
-    (
-        "system",
-        """You are a financial analyst AI specializing in SEC filings analysis.
+SEC_RAG_PROMPT = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            """You are a financial analyst AI specializing in SEC filings analysis.
 
 Your job: Answer questions ONLY using the provided SEC filing excerpts below.
 
@@ -46,12 +47,13 @@ RULES YOU MUST FOLLOW:
 CONTEXT FROM SEC FILINGS:
 {context}
 """,
-    ),
-    (
-        "human",
-        "{question}",
-    ),
-])
+        ),
+        (
+            "human",
+            "{question}",
+        ),
+    ]
+)
 
 
 # ============================================================
@@ -63,10 +65,11 @@ CONTEXT FROM SEC FILINGS:
 # "How much money did Apple make?" → "Apple total revenue", "AAPL net sales", etc.
 # Generating multiple phrasings catches more relevant chunks.
 
-QUERY_REWRITE_PROMPT = ChatPromptTemplate.from_messages([
-    (
-        "system",
-        """You are a financial search query optimizer.
+QUERY_REWRITE_PROMPT = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            """You are a financial search query optimizer.
 Given a question about SEC filings, generate 3 alternative search queries
 that would help retrieve relevant passages from 10-K annual reports.
 
@@ -81,12 +84,13 @@ Example:
 Input: "What is Apple's revenue?"
 Output: ["Apple total revenue annual", "AAPL net sales 10-K", "Apple revenue recognition fiscal year"]
 """,
-    ),
-    (
-        "human",
-        "Generate 3 search queries for: {question}",
-    ),
-])
+        ),
+        (
+            "human",
+            "Generate 3 search queries for: {question}",
+        ),
+    ]
+)
 
 
 # ============================================================
@@ -94,10 +98,11 @@ Output: ["Apple total revenue annual", "AAPL net sales 10-K", "Apple revenue rec
 # Used by: api/main.py to extract structured citations from answers
 # ============================================================
 
-CITATION_EXTRACTION_PROMPT = ChatPromptTemplate.from_messages([
-    (
-        "system",
-        """You extract structured citations from financial analysis answers.
+CITATION_EXTRACTION_PROMPT = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            """You extract structured citations from financial analysis answers.
 
 Given an answer and the source chunks it was based on, output a JSON array of citations.
 
@@ -111,17 +116,18 @@ Each citation must be:
 
 Output ONLY the JSON array. No other text.
 """,
-    ),
-    (
-        "human",
-        """Answer: {answer}
+        ),
+        (
+            "human",
+            """Answer: {answer}
 
 Source chunks:
 {source_chunks}
 
 Extract citations as JSON array:""",
-    ),
-])
+        ),
+    ]
+)
 
 
 def format_context(documents: list) -> str:

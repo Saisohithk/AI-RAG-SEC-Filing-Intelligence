@@ -23,6 +23,7 @@ from src.generation.llm_router import get_llm, get_streaming_llm
 # Tests for get_llm()
 # ============================================================
 
+
 def test_ollama_provider_returns_correct_class():
     """
     get_llm("ollama") should return an Ollama instance.
@@ -98,9 +99,9 @@ def test_provider_names_are_case_insensitive():
     with patch("langchain_ollama.OllamaLLM") as mock_ollama:
         mock_ollama.return_value = mock_ollama
 
-        get_llm("Ollama")   # Title case
-        get_llm("OLLAMA")   # Upper case
-        get_llm("ollama")   # Lower case
+        get_llm("Ollama")  # Title case
+        get_llm("OLLAMA")  # Upper case
+        get_llm("ollama")  # Lower case
 
         # All three calls should succeed (3 calls total)
         assert mock_ollama.call_count == 3
@@ -110,10 +111,11 @@ def test_provider_names_are_case_insensitive():
 # Tests for get_streaming_llm()
 # ============================================================
 
-def test_streaming_ollama_has_streaming_enabled():
+
+def test_streaming_ollama_is_initialized():
     """
-    get_streaming_llm("ollama") should pass streaming=True to the Ollama constructor.
-    Without this, the UI won't stream tokens.
+    get_streaming_llm("ollama") should return an OllamaLLM instance.
+    OllamaLLM supports streaming natively via stream()/astream() — no constructor kwarg needed.
     """
     with patch("langchain_ollama.OllamaLLM") as mock_ollama:
         mock_ollama.return_value = mock_ollama
@@ -121,8 +123,8 @@ def test_streaming_ollama_has_streaming_enabled():
         get_streaming_llm("ollama")
 
         call_kwargs = mock_ollama.call_args.kwargs
-        assert call_kwargs.get("streaming") is True, (
-            "Streaming LLM must have streaming=True"
+        assert "model" in call_kwargs or "base_url" in call_kwargs, (
+            "Streaming Ollama should be initialized with model and base_url"
         )
 
 

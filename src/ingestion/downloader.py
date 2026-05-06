@@ -85,7 +85,9 @@ def download_10k_filings(
             logger.error(f"  FAIL {ticker}: download error — {e}")
             continue
 
-    logger.info(f"Download complete: {len(downloaded_paths)}/{len(tickers)} tickers succeeded")
+    logger.info(
+        f"Download complete: {len(downloaded_paths)}/{len(tickers)} tickers succeeded"
+    )
     return downloaded_paths
 
 
@@ -127,6 +129,7 @@ def extract_text_from_filing(filing_path: Path) -> tuple[str, dict]:
 
     elif suffix == ".pdf":
         import fitz  # PyMuPDF
+
         doc = fitz.open(str(filing_path))
         text = "\n".join(page.get_text() for page in doc)
         doc.close()
@@ -177,7 +180,9 @@ def _extract_from_sgml(filing_path: Path) -> str:
         match = text_pattern.search(raw)
 
     if not match:
-        logger.warning(f"No <TEXT> block found in {filing_path.name}, using raw content")
+        logger.warning(
+            f"No <TEXT> block found in {filing_path.name}, using raw content"
+        )
         return raw[:500_000]  # Return first 500K chars as fallback
 
     text_content = match.group(1).strip()

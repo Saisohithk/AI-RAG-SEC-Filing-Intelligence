@@ -26,9 +26,24 @@ SAMPLE_QUESTIONS: list[str] = [
 
 # Provider metadata for display
 _PROVIDERS = {
-    "groq":   {"label": "Groq",   "emoji": "⚡", "desc": "500+ tok/s · Free tier",    "color": "#f97316"},
-    "gemini": {"label": "Gemini", "emoji": "✨", "desc": "Best quality · Free tier",  "color": "#4285f4"},
-    "ollama": {"label": "Ollama", "emoji": "🦙", "desc": "Local · No API key · Slow", "color": "#76b900"},
+    "groq": {
+        "label": "Groq",
+        "emoji": "⚡",
+        "desc": "500+ tok/s · Free tier",
+        "color": "#f97316",
+    },
+    "gemini": {
+        "label": "Gemini",
+        "emoji": "✨",
+        "desc": "Best quality · Free tier",
+        "color": "#4285f4",
+    },
+    "ollama": {
+        "label": "Ollama",
+        "emoji": "🦙",
+        "desc": "Local · No API key · Slow",
+        "color": "#76b900",
+    },
 }
 
 
@@ -42,7 +57,8 @@ class SidebarConfig:
 def render_sidebar(client: APIClient) -> SidebarConfig:
     with st.sidebar:
         # ── Branding header ──────────────────────────────────────────────────
-        st.markdown("""
+        st.markdown(
+            """
         <div style="
             padding: 20px 8px 16px;
             border-bottom: 1px solid #1a2235;
@@ -58,13 +74,15 @@ def render_sidebar(client: APIClient) -> SidebarConfig:
                 Configure your query pipeline
             </div>
         </div>
-        """, unsafe_allow_html=True)
+        """,
+            unsafe_allow_html=True,
+        )
 
         # ── LLM Provider ─────────────────────────────────────────────────────
         st.markdown(
             '<p style="font-size:11px;font-weight:600;color:#6b7a99;'
             'letter-spacing:0.8px;text-transform:uppercase;margin:0 0 8px">LLM Provider</p>',
-            unsafe_allow_html=True
+            unsafe_allow_html=True,
         )
         provider = st.selectbox(
             "LLM Provider",
@@ -75,11 +93,12 @@ def render_sidebar(client: APIClient) -> SidebarConfig:
 
         # Render provider info badge
         p = _PROVIDERS[provider]
-        st.markdown(f"""
+        st.markdown(
+            f"""
         <div style="
             background: rgba(255,255,255,0.03);
             border: 1px solid #1a2235;
-            border-left: 3px solid {p['color']};
+            border-left: 3px solid {p["color"]};
             border-radius: 8px;
             padding: 8px 12px;
             margin: 6px 0 14px;
@@ -87,23 +106,26 @@ def render_sidebar(client: APIClient) -> SidebarConfig:
             align-items: center;
             gap: 8px;
         ">
-            <span style="font-size:18px">{p['emoji']}</span>
+            <span style="font-size:18px">{p["emoji"]}</span>
             <div>
-                <div style="font-size:13px;font-weight:600;color:#e8eaf0">{p['label']}</div>
-                <div style="font-size:11px;color:#6b7a99">{p['desc']}</div>
+                <div style="font-size:13px;font-weight:600;color:#e8eaf0">{p["label"]}</div>
+                <div style="font-size:11px;color:#6b7a99">{p["desc"]}</div>
             </div>
         </div>
-        """, unsafe_allow_html=True)
+        """,
+            unsafe_allow_html=True,
+        )
 
         # ── Top-K slider ─────────────────────────────────────────────────────
         st.markdown(
             '<p style="font-size:11px;font-weight:600;color:#6b7a99;'
             'letter-spacing:0.8px;text-transform:uppercase;margin:0 0 4px">Context Chunks</p>',
-            unsafe_allow_html=True
+            unsafe_allow_html=True,
         )
         top_k = st.slider(
             "top_k",
-            min_value=1, max_value=10,
+            min_value=1,
+            max_value=10,
             value=st.session_state.get("top_k", 5),
             label_visibility="collapsed",
             help="Number of filing chunks sent to the LLM as context.",
@@ -111,8 +133,8 @@ def render_sidebar(client: APIClient) -> SidebarConfig:
         st.session_state["top_k"] = top_k
         st.markdown(
             f'<p style="font-size:11px;color:#4f6080;margin:-4px 0 10px">'
-            f'Top {top_k} chunks from {top_k * 4} candidates after rerank</p>',
-            unsafe_allow_html=True
+            f"Top {top_k} chunks from {top_k * 4} candidates after rerank</p>",
+            unsafe_allow_html=True,
         )
 
         # ── Streaming toggle ──────────────────────────────────────────────────
@@ -130,7 +152,7 @@ def render_sidebar(client: APIClient) -> SidebarConfig:
         st.markdown(
             '<p style="font-size:11px;font-weight:600;color:#6b7a99;'
             'letter-spacing:0.8px;text-transform:uppercase;margin:0 0 8px">Try These</p>',
-            unsafe_allow_html=True
+            unsafe_allow_html=True,
         )
         for q in SAMPLE_QUESTIONS:
             if st.button(q, use_container_width=True, key=f"sq_{hash(q)}"):
@@ -147,9 +169,15 @@ def render_sidebar(client: APIClient) -> SidebarConfig:
                     placeholder="AAPL, MSFT, NVDA",
                 )
                 num_filings = st.number_input(
-                    "Years of filings", min_value=1, max_value=5, value=2, step=1,
+                    "Years of filings",
+                    min_value=1,
+                    max_value=5,
+                    value=2,
+                    step=1,
                 )
-                submitted = st.form_submit_button("🚀 Start Ingestion", type="primary", use_container_width=True)
+                submitted = st.form_submit_button(
+                    "🚀 Start Ingestion", type="primary", use_container_width=True
+                )
 
             if submitted:
                 _handle_ingest(client, ticker_input, int(num_filings))
@@ -159,7 +187,8 @@ def render_sidebar(client: APIClient) -> SidebarConfig:
             _render_health(client)
 
         # ── Footer ────────────────────────────────────────────────────────────
-        st.markdown("""
+        st.markdown(
+            """
         <div style="
             padding: 16px 8px 8px;
             border-top: 1px solid #1a2235;
@@ -171,12 +200,15 @@ def render_sidebar(client: APIClient) -> SidebarConfig:
                 LangChain · Pinecone · RAGAS
             </div>
         </div>
-        """, unsafe_allow_html=True)
+        """,
+            unsafe_allow_html=True,
+        )
 
     return SidebarConfig(provider=provider, top_k=top_k, streaming=streaming)
 
 
 # ── Private helpers ──────────────────────────────────────────────────────────
+
 
 def _handle_ingest(client: APIClient, ticker_input: str, num_filings: int) -> None:
     if not ticker_input.strip():
@@ -202,6 +234,10 @@ def _render_health(client: APIClient) -> None:
     status = client.health_check()
     if status.is_healthy:
         models = ", ".join(status.models_available) or "none"
-        st.success(f"✅ API healthy\n\nModels: **{models}**\nStore: **{status.vector_store}**")
+        st.success(
+            f"✅ API healthy\n\nModels: **{models}**\nStore: **{status.vector_store}**"
+        )
     else:
-        st.error("❌ API offline — start with:\n```\nuvicorn api.main:app --reload\n```")
+        st.error(
+            "❌ API offline — start with:\n```\nuvicorn api.main:app --reload\n```"
+        )

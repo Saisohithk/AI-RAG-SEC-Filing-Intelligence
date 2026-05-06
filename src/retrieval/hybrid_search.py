@@ -244,8 +244,11 @@ class HybridSearcher:
 
         if filters:
             fused = [
-                doc for doc in fused
-                if all(str(doc.metadata.get(k, "")) == str(v) for k, v in filters.items())
+                doc
+                for doc in fused
+                if all(
+                    str(doc.metadata.get(k, "")) == str(v) for k, v in filters.items()
+                )
             ]
 
         return fused[:top_k]

@@ -87,7 +87,9 @@ def get_embedder() -> Embeddings:
         logger.info("Using JinaEmbedder (JINA_API_KEY found)")
         return JinaEmbedder()
     else:
-        logger.info("JINA_API_KEY not set — using LocalEmbedder (sentence-transformers, free)")
+        logger.info(
+            "JINA_API_KEY not set — using LocalEmbedder (sentence-transformers, free)"
+        )
         return LocalEmbedder()
 
 
@@ -129,7 +131,9 @@ class JinaEmbedder(Embeddings):
             batch = texts[batch_start : batch_start + BATCH_SIZE]
             embeddings = self._embed_with_retry(batch)
             all_embeddings.extend(embeddings)
-            logger.debug(f"Embedded batch {batch_start//BATCH_SIZE + 1}: {len(batch)} texts")
+            logger.debug(
+                f"Embedded batch {batch_start // BATCH_SIZE + 1}: {len(batch)} texts"
+            )
 
             time.sleep(1.5)
 
@@ -148,7 +152,9 @@ class JinaEmbedder(Embeddings):
         # Single text still needs to be sent as a list to the API
         return self._embed_with_retry([text])[0]
 
-    def _embed_with_retry(self, texts: list[str], max_retries: int = 3) -> list[list[float]]:
+    def _embed_with_retry(
+        self, texts: list[str], max_retries: int = 3
+    ) -> list[list[float]]:
         """
         Call Jina API with exponential backoff retry on rate limit errors.
 
@@ -170,7 +176,9 @@ class JinaEmbedder(Embeddings):
                 if response.status_code == 429:
                     # Rate limited — wait longer each retry (1s, 2s, 4s)
                     wait_time = 2**attempt
-                    logger.warning(f"Rate limited by Jina API. Waiting {wait_time}s (attempt {attempt+1}/{max_retries})")
+                    logger.warning(
+                        f"Rate limited by Jina API. Waiting {wait_time}s (attempt {attempt + 1}/{max_retries})"
+                    )
                     time.sleep(wait_time)
                     continue
 
@@ -183,12 +191,14 @@ class JinaEmbedder(Embeddings):
                 return [item["embedding"] for item in sorted_data]
 
             except httpx.TimeoutException:
-                logger.error(f"Jina API timeout on attempt {attempt+1}")
+                logger.error(f"Jina API timeout on attempt {attempt + 1}")
                 if attempt == max_retries - 1:
                     raise
 
             except httpx.HTTPStatusError as e:
-                logger.error(f"Jina API HTTP error: {e.response.status_code} - {e.response.text}")
+                logger.error(
+                    f"Jina API HTTP error: {e.response.status_code} - {e.response.text}"
+                )
                 raise
 
         raise RuntimeError(f"Jina API failed after {max_retries} retries")
@@ -254,7 +264,9 @@ class VectorStoreManager:
         from pinecone import Pinecone, ServerlessSpec
 
         if not settings.PINECONE_API_KEY:
-            raise ValueError("PINECONE_API_KEY is not set. Get a free key at app.pinecone.io")
+            raise ValueError(
+                "PINECONE_API_KEY is not set. Get a free key at app.pinecone.io"
+            )
 
         logger.info(f"Initializing Pinecone index: {settings.PINECONE_INDEX_NAME}")
 
@@ -314,26 +326,32 @@ class VectorStoreManager:
         # Build Pinecone upsert format: list of (id, vector, metadata) dicts
         vectors: list[dict[str, Any]] = []
         for chunk, embedding in zip(chunks, embeddings):
-            vectors.append({
-                "id": chunk.metadata["chunk_id"],
-                "values": embedding,
-                "metadata": {
-                    **chunk.metadata,
-                    "text": chunk.page_content,  # Store text so we can retrieve it
-                },
-            })
+            vectors.append(
+                {
+                    "id": chunk.metadata["chunk_id"],
+                    "values": embedding,
+                    "metadata": {
+                        **chunk.metadata,
+                        "text": chunk.page_content,  # Store text so we can retrieve it
+                    },
+                }
+            )
 
         # Upsert in batches of 100 (Pinecone recommended batch size)
         PINECONE_BATCH_SIZE = 200
         for i in range(0, len(vectors), PINECONE_BATCH_SIZE):
             batch = vectors[i : i + PINECONE_BATCH_SIZE]
             self.pinecone_index.upsert(vectors=batch)
-            logger.debug(f"Upserted batch {i//PINECONE_BATCH_SIZE + 1}: {len(batch)} vectors")
+            logger.debug(
+                f"Upserted batch {i // PINECONE_BATCH_SIZE + 1}: {len(batch)} vectors"
+            )
             time.sleep(1.5)
 
         return len(vectors)
 
-    def similarity_search(self, query_embedding: list[float], top_k: int) -> list[Document]:
+    def similarity_search(
+        self, query_embedding: list[float], top_k: int
+    ) -> list[Document]:
         """
         Find the most semantically similar documents to a query vector.
 
@@ -358,7 +376,9 @@ class VectorStoreManager:
             documents = []
             for match in results["matches"]:
                 meta = match["metadata"].copy()
-                text = meta.pop("text", "")  # Remove text from metadata, use as page_content
+                text = meta.pop(
+                    "text", ""
+                )  # Remove text from metadata, use as page_content
                 documents.append(Document(page_content=text, metadata=meta))
             return documents
 

@@ -4,6 +4,7 @@ tests/conftest.py — Shared pytest fixtures for all test suites.
 Fixtures defined here are automatically available to every test file
 in tests/unit/ and tests/integration/ without explicit imports.
 """
+
 import sys
 from pathlib import Path
 
@@ -22,28 +23,53 @@ def sample_documents() -> list[Document]:
     return [
         Document(
             page_content="Apple reported total net sales of $383 billion in fiscal 2024.",
-            metadata={"chunk_id": "chunk_1", "ticker": "AAPL", "source": "AAPL-10-K-2024",
-                      "filing_date": "2024", "rerank_score": 0.95},
+            metadata={
+                "chunk_id": "chunk_1",
+                "ticker": "AAPL",
+                "source": "AAPL-10-K-2024",
+                "filing_date": "2024",
+                "rerank_score": 0.95,
+            },
         ),
         Document(
             page_content="Microsoft Azure cloud revenue grew 29% to reach $135 billion annually.",
-            metadata={"chunk_id": "chunk_2", "ticker": "MSFT", "source": "MSFT-10-K-2024",
-                      "filing_date": "2024", "rerank_score": 0.82},
+            metadata={
+                "chunk_id": "chunk_2",
+                "ticker": "MSFT",
+                "source": "MSFT-10-K-2024",
+                "filing_date": "2024",
+                "rerank_score": 0.82,
+            },
         ),
         Document(
             page_content="Google advertising revenue from Search was $175 billion in 2024.",
-            metadata={"chunk_id": "chunk_3", "ticker": "GOOGL", "source": "GOOGL-10-K-2024",
-                      "filing_date": "2024", "rerank_score": 0.71},
+            metadata={
+                "chunk_id": "chunk_3",
+                "ticker": "GOOGL",
+                "source": "GOOGL-10-K-2024",
+                "filing_date": "2024",
+                "rerank_score": 0.71,
+            },
         ),
         Document(
             page_content="Apple's gross margin was 45.9% driven by services growth.",
-            metadata={"chunk_id": "chunk_4", "ticker": "AAPL", "source": "AAPL-10-K-2024",
-                      "filing_date": "2024", "rerank_score": 0.65},
+            metadata={
+                "chunk_id": "chunk_4",
+                "ticker": "AAPL",
+                "source": "AAPL-10-K-2024",
+                "filing_date": "2024",
+                "rerank_score": 0.65,
+            },
         ),
         Document(
             page_content="Risk factors include supply chain disruptions and competition from Samsung.",
-            metadata={"chunk_id": "chunk_5", "ticker": "AAPL", "source": "AAPL-10-K-2024",
-                      "filing_date": "2024", "rerank_score": 0.45},
+            metadata={
+                "chunk_id": "chunk_5",
+                "ticker": "AAPL",
+                "source": "AAPL-10-K-2024",
+                "filing_date": "2024",
+                "rerank_score": 0.45,
+            },
         ),
     ]
 

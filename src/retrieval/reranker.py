@@ -59,7 +59,9 @@ class BGEReranker:
         elapsed = time.time() - start
         logger.info(f"BGE reranker loaded in {elapsed:.1f}s")
 
-    def rerank(self, query: str, documents: list[Document], top_k: int = 5) -> list[Document]:
+    def rerank(
+        self, query: str, documents: list[Document], top_k: int = 5
+    ) -> list[Document]:
         """
         Score and rerank documents by relevance to the query.
 

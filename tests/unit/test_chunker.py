@@ -19,6 +19,7 @@ from src.ingestion.chunker import SECChunker
 # Test Fixtures — shared test data
 # ============================================================
 
+
 @pytest.fixture
 def sample_metadata() -> dict:
     """Standard metadata for a fictional Apple 10-K filing."""
@@ -36,7 +37,8 @@ def sample_text() -> str:
     Realistic SEC filing text excerpt (~1000 chars).
     Long enough to produce multiple chunks.
     """
-    return """
+    return (
+        """
     Apple Inc. designs, manufactures, and markets smartphones, personal computers,
     tablets, wearables, and accessories worldwide. The Company also sells various
     related services. Apple was incorporated in California in 1977.
@@ -58,7 +60,9 @@ def sample_text() -> str:
     jurisdictions in which it operates. We are subject to potential liability
     related to privacy and handling of personal data, intellectual property
     disputes, and product liability claims.
-    """ * 3  # Repeat to make it long enough for multiple chunks
+    """
+        * 3
+    )  # Repeat to make it long enough for multiple chunks
 
 
 @pytest.fixture
@@ -70,6 +74,7 @@ def chunker() -> SECChunker:
 # ============================================================
 # Tests
 # ============================================================
+
 
 def test_chunk_produces_correct_metadata(chunker, sample_text, sample_metadata):
     """
@@ -122,7 +127,17 @@ def test_short_chunks_filtered(chunker, sample_metadata):
     These are usually page numbers, headers, or noise.
     """
     # Create text with some very short "chunks" that are just noise
-    text = "A" * 300 + "\n\n" + "p." + "\n\n" + "B" * 300 + "\n\n" + "42" + "\n\n" + "C" * 300
+    text = (
+        "A" * 300
+        + "\n\n"
+        + "p."
+        + "\n\n"
+        + "B" * 300
+        + "\n\n"
+        + "42"
+        + "\n\n"
+        + "C" * 300
+    )
 
     chunks = chunker.chunk_document(text, sample_metadata)
 

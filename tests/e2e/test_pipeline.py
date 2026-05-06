@@ -57,11 +57,14 @@ class TestIngestAndQueryE2E:
         # Allow background ingestion to complete
         time.sleep(15)
 
-        resp = api.post("/query", json={
-            "question": "What was Apple's total revenue?",
-            "provider": "groq",
-            "top_k": 3,
-        })
+        resp = api.post(
+            "/query",
+            json={
+                "question": "What was Apple's total revenue?",
+                "provider": "groq",
+                "top_k": 3,
+            },
+        )
         assert resp.status_code == 200
         data = resp.json()
         assert "answer" in data
@@ -70,23 +73,29 @@ class TestIngestAndQueryE2E:
         assert "latency_ms" in data
 
     def test_query_sources_contain_aapl(self, api):
-        resp = api.post("/query", json={
-            "question": "Apple revenue 2024",
-            "provider": "groq",
-            "top_k": 5,
-        })
+        resp = api.post(
+            "/query",
+            json={
+                "question": "Apple revenue 2024",
+                "provider": "groq",
+                "top_k": 5,
+            },
+        )
         assert resp.status_code == 200
         sources = resp.json()["sources"]
         tickers = [s["ticker"] for s in sources]
         assert "AAPL" in tickers, f"Expected AAPL in sources, got: {tickers}"
 
     def test_metadata_filter_ticker(self, api):
-        resp = api.post("/query", json={
-            "question": "annual revenue",
-            "provider": "groq",
-            "top_k": 5,
-            "ticker": "AAPL",
-        })
+        resp = api.post(
+            "/query",
+            json={
+                "question": "annual revenue",
+                "provider": "groq",
+                "top_k": 5,
+                "ticker": "AAPL",
+            },
+        )
         assert resp.status_code == 200
         sources = resp.json()["sources"]
         for source in sources:
@@ -107,11 +116,14 @@ class TestRateLimitingE2E:
         """Rapid burst of 70 requests should hit the 60/min limit."""
         statuses = []
         for _ in range(70):
-            resp = api.post("/query", json={
-                "question": "test",
-                "provider": "groq",
-                "top_k": 1,
-            })
+            resp = api.post(
+                "/query",
+                json={
+                    "question": "test",
+                    "provider": "groq",
+                    "top_k": 1,
+                },
+            )
             statuses.append(resp.status_code)
             if resp.status_code == 429:
                 break

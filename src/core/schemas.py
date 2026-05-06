@@ -23,17 +23,24 @@ from pydantic import BaseModel, Field, field_validator
 # API-level contracts (mirror api/main.py Pydantic models)
 # ---------------------------------------------------------------------------
 
+
 class QueryRequest(BaseModel):
     """Payload sent to POST /query or POST /query/stream."""
+
     question: str = Field(..., min_length=1, max_length=2000)
     provider: str = Field(default="groq", pattern="^(groq|gemini|ollama)$")
     top_k: int = Field(default=5, ge=1, le=10)
-    ticker: Optional[str] = Field(default=None, pattern="^[A-Z]{1,5}$", description="Filter by ticker symbol")
-    year: Optional[int] = Field(default=None, ge=2000, le=2030, description="Filter by filing year")
+    ticker: Optional[str] = Field(
+        default=None, pattern="^[A-Z]{1,5}$", description="Filter by ticker symbol"
+    )
+    year: Optional[int] = Field(
+        default=None, ge=2000, le=2030, description="Filter by filing year"
+    )
 
 
 class IngestRequest(BaseModel):
     """Payload sent to POST /ingest."""
+
     tickers: list[str] = Field(..., min_length=1)
     num_filings: int = Field(default=2, ge=1, le=5)
 
@@ -47,8 +54,10 @@ class IngestRequest(BaseModel):
 # Response contracts (built from API JSON responses)
 # ---------------------------------------------------------------------------
 
+
 class Source(BaseModel):
     """A single cited SEC filing chunk returned by the RAG pipeline."""
+
     ticker: str = "?"
     filing_date: str = "?"
     chunk_text: str = ""
@@ -66,6 +75,7 @@ class Source(BaseModel):
 
 class LatencyBreakdown(BaseModel):
     """Per-stage pipeline timing (milliseconds)."""
+
     retrieve_ms: float = 0.0
     rerank_ms: float = 0.0
     generate_ms: float = 0.0
@@ -83,6 +93,7 @@ class LatencyBreakdown(BaseModel):
 
 class QueryResponse(BaseModel):
     """Full response from POST /query."""
+
     answer: str = ""
     sources: list[Source] = Field(default_factory=list)
     latency_ms: LatencyBreakdown = Field(default_factory=LatencyBreakdown)
@@ -106,8 +117,10 @@ class QueryResponse(BaseModel):
 # UI-level contracts
 # ---------------------------------------------------------------------------
 
+
 class ChatMessage(BaseModel):
     """A single turn in the conversation history stored in session_state."""
+
     role: str = Field(..., pattern="^(user|assistant)$")
     content: str
     sources: list[Source] = Field(default_factory=list)
@@ -124,6 +137,7 @@ class ChatMessage(BaseModel):
 
 class HealthStatus(BaseModel):
     """Response from GET /health."""
+
     status: str = "unknown"
     vector_store: str = "unknown"
     models_available: list[str] = Field(default_factory=list)
@@ -136,6 +150,7 @@ class HealthStatus(BaseModel):
 
 class IngestJobResponse(BaseModel):
     """Response from POST /ingest and GET /ingest/{job_id}."""
+
     job_id: str
     status: str  # "queued" | "started" | "finished" | "failed"
     tickers: list[str]

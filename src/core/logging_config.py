@@ -72,6 +72,7 @@ def setup_logging(level: str = "INFO") -> None:
 # Decorators
 # ---------------------------------------------------------------------------
 
+
 def log_call(logger: logging.Logger | None = None) -> Callable[[F], F]:
     """
     Decorator factory: log function entry, exit, and wall-clock time.
@@ -103,7 +104,9 @@ def log_call(logger: logging.Logger | None = None) -> Callable[[F], F]:
                 return result
             except Exception as exc:
                 elapsed = (time.perf_counter() - t0) * 1000
-                _logger.error("✗ %s failed after %.1fms: %s", func.__name__, elapsed, exc)
+                _logger.error(
+                    "✗ %s failed after %.1fms: %s", func.__name__, elapsed, exc
+                )
                 raise
 
         return wrapper  # type: ignore[return-value]

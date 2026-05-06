@@ -22,6 +22,7 @@ from src.retrieval.hybrid_search import HybridSearcher
 # Fixtures
 # ============================================================
 
+
 @pytest.fixture
 def searcher(mock_vector_store, mock_embedder, sample_documents) -> HybridSearcher:
     """HybridSearcher with BM25 index pre-built on sample documents."""
@@ -33,6 +34,7 @@ def searcher(mock_vector_store, mock_embedder, sample_documents) -> HybridSearch
 # ============================================================
 # Tests
 # ============================================================
+
 
 def test_bm25_returns_relevant_docs(searcher):
     """
@@ -96,7 +98,7 @@ def test_rrf_boosts_docs_in_both_lists(searcher, sample_documents):
     a document appearing in only one list.
     This is the core value proposition of RRF.
     """
-    chunk_in_both = sample_documents[0]    # chunk_id: "chunk_1"
+    chunk_in_both = sample_documents[0]  # chunk_id: "chunk_1"
     chunk_bm25_only = sample_documents[1]  # chunk_id: "chunk_2"
     chunk_vector_only = sample_documents[2]  # chunk_id: "chunk_3"
 

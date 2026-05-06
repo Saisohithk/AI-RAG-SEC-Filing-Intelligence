@@ -22,17 +22,17 @@ from src.core.schemas import LatencyBreakdown, Source
 # ---------------------------------------------------------------------------
 
 BRAND_PRIMARY = "#4f8ef7"
-BRAND_BG      = "#080d14"
+BRAND_BG = "#080d14"
 BRAND_SURFACE = "#0a111e"
-BRAND_TEXT    = "#e8eaf0"
-BRAND_MUTED   = "#6b7a99"
+BRAND_TEXT = "#e8eaf0"
+BRAND_MUTED = "#6b7a99"
 
 TICKER_COLORS: dict[str, str] = {
-    "AAPL":  "#555555",
-    "MSFT":  "#00a4ef",
+    "AAPL": "#555555",
+    "MSFT": "#00a4ef",
     "GOOGL": "#4285f4",
-    "AMZN":  "#ff9900",
-    "NVDA":  "#76b900",
+    "AMZN": "#ff9900",
+    "NVDA": "#76b900",
 }
 
 # Plotly layout defaults applied to every figure
@@ -46,7 +46,7 @@ _BASE_LAYOUT = dict(
 
 SEC_STAGE_COLORS = {
     "Retrieve": "#4f8ef7",
-    "Rerank":   "#a78bfa",
+    "Rerank": "#a78bfa",
     "Generate": "#34d399",
 }
 
@@ -63,7 +63,7 @@ def render_latency_chart(latency: LatencyBreakdown) -> None:
     """
     import plotly.graph_objects as go
 
-    stages = latency.stage_dict          # {"Retrieve": ms, "Rerank": ms, "Generate": ms}
+    stages = latency.stage_dict  # {"Retrieve": ms, "Rerank": ms, "Generate": ms}
     if not any(stages.values()):
         return
 
@@ -123,8 +123,8 @@ def render_source_distribution(sources: list[Source]) -> None:
         return  # Not interesting for a single company
 
     tickers = list(counts.keys())
-    values  = list(counts.values())
-    colors  = [TICKER_COLORS.get(t, BRAND_MUTED) for t in tickers]
+    values = list(counts.values())
+    colors = [TICKER_COLORS.get(t, BRAND_MUTED) for t in tickers]
 
     fig = go.Figure(
         go.Pie(
@@ -144,7 +144,8 @@ def render_source_distribution(sources: list[Source]) -> None:
         annotations=[
             dict(
                 text=f"{len(sources)}<br><span style='font-size:10px'>chunks</span>",
-                x=0.5, y=0.5,
+                x=0.5,
+                y=0.5,
                 font=dict(size=14, color=BRAND_TEXT),
                 showarrow=False,
             )
@@ -166,10 +167,7 @@ def render_relevance_scores(sources: list[Source]) -> None:
     if not sources:
         return
 
-    labels = [
-        f"{s.ticker} {s.filing_date} (#{i+1})"
-        for i, s in enumerate(sources)
-    ]
+    labels = [f"{s.ticker} {s.filing_date} (#{i + 1})" for i, s in enumerate(sources)]
     scores = [s.rerank_score for s in sources]
     colors = [
         "#34d399" if sc >= 0.7 else "#fbbf24" if sc >= 0.4 else "#f87171"

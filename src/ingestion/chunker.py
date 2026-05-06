@@ -55,11 +55,19 @@ class SECChunker:
         self.splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap,
-            separators=["\n\n", "\n", ". ", " ", ""],  # Prefer paragraph > sentence > word
+            separators=[
+                "\n\n",
+                "\n",
+                ". ",
+                " ",
+                "",
+            ],  # Prefer paragraph > sentence > word
             length_function=len,  # Count characters (not tokens)
         )
 
-        logger.info(f"SECChunker ready: chunk_size={chunk_size}, overlap={chunk_overlap}")
+        logger.info(
+            f"SECChunker ready: chunk_size={chunk_size}, overlap={chunk_overlap}"
+        )
 
     def chunk_document(self, text: str, metadata: dict) -> list[Document]:
         """
@@ -133,9 +141,13 @@ class SECChunker:
         all_chunks: list[Document] = []
 
         for i, (text, metadata) in enumerate(documents):
-            logger.info(f"Processing document {i+1}/{len(documents)}: {metadata.get('ticker', '?')}")
+            logger.info(
+                f"Processing document {i + 1}/{len(documents)}: {metadata.get('ticker', '?')}"
+            )
             chunks = self.chunk_document(text, metadata)
             all_chunks.extend(chunks)
 
-        logger.info(f"Batch complete: {len(documents)} docs → {len(all_chunks)} total chunks")
+        logger.info(
+            f"Batch complete: {len(documents)} docs → {len(all_chunks)} total chunks"
+        )
         return all_chunks
