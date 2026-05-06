@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sec-rag-worker
+  labels:
+    app: sec-rag-worker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sec-rag-worker
+  template:
+    metadata:
+      labels:
+        app: sec-rag-worker
+    spec:
+      containers:
+        - name: worker
+          image: sec-rag-api:latest
+          command: ["python", "scripts/worker.py"]
+          envFrom:
+            - secretRef:
+                name: sec-rag-secrets
+            - configMapRef:
+                name: sec-rag-config
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "1"
+            limits:
+              memory: "8Gi"
+              cpu: "4"
+          volumeMounts:
+            - name: bm25-index
+              mountPath: /app/data
+      volumes:
+        - name: bm25-index
+          persistentVolumeClaim:
+            claimName: bm25-index-pvc

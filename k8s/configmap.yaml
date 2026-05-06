@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sec-rag-config
+data:
+  USE_LOCAL_CHROMA: "false"
+  VECTOR_STORE: "pinecone"
+  DEFAULT_LLM_PROVIDER: "groq"
+  CHUNK_SIZE: "512"
+  CHUNK_OVERLAP: "64"
+  TOP_K_RETRIEVAL: "20"
+  TOP_K_RERANK: "5"
+  LANGCHAIN_TRACING_V2: "true"
+  LANGCHAIN_PROJECT: "sec-rag-production"
+  OLLAMA_BASE_URL: "http://localhost:11434"
+  ALLOWED_ORIGINS: "https://your-streamlit-app.example.com"
+  BM25_INDEX_PATH: "/app/data/bm25_index.pkl"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sec-rag-secrets
+type: Opaque
+# Populate via: kubectl create secret generic sec-rag-secrets --from-env-file=.env
+stringData:
+  API_KEY: ""
+  GROQ_API_KEY: ""
+  GOOGLE_API_KEY: ""
+  PINECONE_API_KEY: ""
+  JINA_API_KEY: ""
+  LANGCHAIN_API_KEY: ""
+  REDIS_URL: "redis://redis-service:6379/0"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: bm25-index-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi

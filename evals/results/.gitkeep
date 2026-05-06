@@ -1,0 +1,2 @@
+# This file keeps the results/ directory in git even when empty.
+# Evaluation results (CSV files) are gitignored — they're generated at runtime.

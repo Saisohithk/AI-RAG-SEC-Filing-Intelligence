@@ -1,0 +1,85 @@
+# docker-compose.yml — Run the full SEC RAG stack with one command
+#
+# Usage:
+#   docker compose up --build            # Build and start all services
+#   docker compose up -d                 # Run in background (detached)
+#   docker compose logs -f api           # Watch API logs
+#   docker compose down                  # Stop everything
+#
+# Services:
+#   redis     → Redis 7 at localhost:6379 (cache + job queue)
+#   api       → FastAPI backend at http://localhost:8000
+#   worker    → RQ ingestion worker (consumes Redis queue)
+#   streamlit → Streamlit UI at http://localhost:8501
+
+version: "3.8"
+
+services:
+  # --- Redis (cache + job queue) ---
+  redis:
+    image: redis:7-alpine
+    container_name: sec-rag-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # --- FastAPI Backend ---
+  api:
+    build: .
+    container_name: sec-rag-api
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./data:/app/data
+      - ./chroma_db:/app/chroma_db
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # --- RQ Ingestion Worker ---
+  worker:
+    build: .
+    container_name: sec-rag-worker
+    command: python scripts/worker.py
+    env_file:
+      - .env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./data:/app/data
+      - ./chroma_db:/app/chroma_db
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # --- Streamlit Frontend ---
+  streamlit:
+    build: .
+    container_name: sec-rag-ui
+    command: streamlit run main.py --server.port 8501 --server.address 0.0.0.0
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    environment:
+      - API_URL=http://api:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped

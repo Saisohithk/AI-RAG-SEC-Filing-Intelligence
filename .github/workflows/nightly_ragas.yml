@@ -1,0 +1,76 @@
+name: Nightly RAGAS Quality Gate
+
+on:
+  schedule:
+    - cron: "0 2 * * *"   # 02:00 UTC daily
+  workflow_dispatch:        # allow manual trigger
+
+jobs:
+  ragas-eval:
+    name: RAGAS Evaluation
+    runs-on: ubuntu-latest
+    env:
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+      LANGCHAIN_TRACING_V2: "true"
+      LANGCHAIN_PROJECT: "sec-rag-evals"
+      USE_LOCAL_CHROMA: "true"
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+
+      - name: Install dependencies
+        run: uv pip install -r requirements.txt --system
+
+      - name: Run RAGAS evaluation
+        id: ragas
+        run: |
+          python evals/run_ragas.py \
+            --commit ${{ github.sha }} \
+            --output evals/results/nightly_$(date +%Y%m%d).json
+
+      - name: Assert quality thresholds
+        run: |
+          python - <<'EOF'
+          import json, sys, glob, os
+
+          results_files = sorted(glob.glob("evals/results/nightly_*.json"))
+          if not results_files:
+              print("No RAGAS results found — skipping threshold check")
+              sys.exit(0)
+
+          with open(results_files[-1]) as f:
+              scores = json.load(f)
+
+          faithfulness = scores.get("faithfulness", 0)
+          relevancy    = scores.get("answer_relevancy", 0)
+          recall       = scores.get("context_recall", 0)
+
+          print(f"faithfulness={faithfulness:.3f}  relevancy={relevancy:.3f}  recall={recall:.3f}")
+
+          failures = []
+          if faithfulness < 0.85:
+              failures.append(f"faithfulness {faithfulness:.3f} < 0.85")
+          if relevancy < 0.80:
+              failures.append(f"answer_relevancy {relevancy:.3f} < 0.80")
+
+          if failures:
+              print(f"QUALITY GATE FAILED: {', '.join(failures)}")
+              sys.exit(1)
+
+          print("Quality gate passed")
+          EOF
+
+      - name: Upload results artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ragas-results-${{ github.run_id }}
+          path: evals/results/
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::RAGAS quality gate failed — check evals/results/ artifact for details"

@@ -1,0 +1,51 @@
+# Environment variables - NEVER commit these
+.env
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Vector database local storage
+chroma_db/
+
+# Downloaded SEC filings (can be large)
+data/sec_filings/
+
+# Evaluation outputs (generated at runtime)
+evals/results/*.csv
+evals/testset.json
+
+# Python package build artifacts
+*.egg-info/
+dist/
+build/
+
+# Test cache
+.pytest_cache/
+
+# Log files
+*.log
+
+# macOS metadata
+.DS_Store
+
+# IDE files
+.vscode/
+.idea/
+
+# Claude Code local settings
+.claude/
+
+# Scripts output
+logs/
+*.log
+
+# Cached files
+.cache/
