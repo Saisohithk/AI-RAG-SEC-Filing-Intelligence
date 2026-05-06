@@ -57,8 +57,8 @@ embedder: Embeddings | None = None
 vector_store: VectorStoreManager | None = None
 searcher: HybridSearcher | None = None
 reranker: BGEReranker | None = None
-redis_client = None       # redis.Redis | None
-ingest_queue = None       # rq.Queue | None
+redis_client = None  # redis.Redis | None
+ingest_queue = None  # rq.Queue | None
 
 # ── Rate limiter ──────────────────────────────────────────────────────────────
 limiter = Limiter(key_func=get_remote_address)
@@ -66,15 +66,19 @@ limiter = Limiter(key_func=get_remote_address)
 
 # ── Auth dependency ───────────────────────────────────────────────────────────
 
+
 async def verify_api_key(x_api_key: Optional[str] = Header(default=None)) -> None:
     """Validate X-API-Key header. No-op when settings.API_KEY is empty."""
     if not settings.API_KEY:
         return
     if x_api_key != settings.API_KEY:
-        raise HTTPException(status_code=401, detail="Invalid or missing X-API-Key header")
+        raise HTTPException(
+            status_code=401, detail="Invalid or missing X-API-Key header"
+        )
 
 
 # ── Startup / shutdown ────────────────────────────────────────────────────────
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -94,7 +98,9 @@ async def lifespan(app: FastAPI):
         if bm25_path.exists():
             searcher.load_index(bm25_path)
         else:
-            logger.info("No persisted BM25 index found — index will build on first ingest")
+            logger.info(
+                "No persisted BM25 index found — index will build on first ingest"
+            )
 
         logger.info("ML components loaded")
     except Exception as e:
@@ -108,7 +114,9 @@ async def lifespan(app: FastAPI):
 
             redis_client = redis_lib.from_url(settings.REDIS_URL, decode_responses=True)
             redis_client.ping()
-            ingest_queue = Queue("ingestion", connection=redis_lib.from_url(settings.REDIS_URL))
+            ingest_queue = Queue(
+                "ingestion", connection=redis_lib.from_url(settings.REDIS_URL)
+            )
             logger.info("Redis connected — caching and job queue enabled")
         except Exception as e:
             logger.warning(f"Redis unavailable, disabling cache/queue: {e}")
@@ -130,7 +138,7 @@ app = FastAPI(
 )
 
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
 
 # CORS — restrict to configured origins in production
 _origins = [o.strip() for o in settings.ALLOWED_ORIGINS.split(",") if o.strip()]
@@ -144,16 +152,20 @@ app.add_middleware(
 
 # ── Request logging middleware ────────────────────────────────────────────────
 
+
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     start = time.perf_counter()
     response = await call_next(request)
     ms = (time.perf_counter() - start) * 1000
-    logger.info(f"{request.method} {request.url.path} → {response.status_code} ({ms:.1f}ms)")
+    logger.info(
+        f"{request.method} {request.url.path} → {response.status_code} ({ms:.1f}ms)"
+    )
     return response
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
+
 
 def _cache_key(question: str, provider: str, top_k: int) -> str:
     return hashlib.sha256(f"{question}:{provider}:{top_k}".encode()).hexdigest()
@@ -197,6 +209,7 @@ def _build_sources(docs) -> list[dict]:
 
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
+
 
 @app.get("/health")
 async def health() -> dict:
@@ -245,7 +258,11 @@ async def query(request: Request, req: QueryRequest) -> dict:
       4. LLM generate    — grounded answer with citations
     """
     if not all([embedder, vector_store, searcher, reranker]):
-        raise HTTPException(status_code=503, detail="Components not initialized. Check /health")
+        raise HTTPException(
+            status_code=503, detail="Components not initialized. Check /health"
+        )
+    assert searcher is not None
+    assert reranker is not None
 
     # Cache check (Redis)
     cache_key = _cache_key(req.question, req.provider, req.top_k)
@@ -280,14 +297,18 @@ async def query(request: Request, req: QueryRequest) -> dict:
 
     # Stage 2 — Rerank
     t0 = time.perf_counter()
-    top_docs = await run_in_threadpool(reranker.rerank, req.question, all_candidates, req.top_k)
+    top_docs = await run_in_threadpool(
+        reranker.rerank, req.question, all_candidates, req.top_k
+    )
     latency["rerank_ms"] = (time.perf_counter() - t0) * 1000
 
     # Stage 3 — Generate
     t0 = time.perf_counter()
     llm = get_llm(req.provider)
     context_text = format_context(top_docs)
-    response = (SEC_RAG_PROMPT | llm).invoke({"context": context_text, "question": req.question})
+    response = (SEC_RAG_PROMPT | llm).invoke(
+        {"context": context_text, "question": req.question}
+    )
     answer = response.content if hasattr(response, "content") else str(response)
     latency["generate_ms"] = (time.perf_counter() - t0) * 1000
     latency["total_ms"] = (time.perf_counter() - total_start) * 1000
@@ -322,6 +343,8 @@ async def query_stream(request: Request, req: QueryRequest) -> StreamingResponse
     """
     if not all([embedder, vector_store, searcher, reranker]):
         raise HTTPException(status_code=503, detail="Components not initialized")
+    assert searcher is not None
+    assert reranker is not None
 
     total_start = time.perf_counter()
     latency: dict[str, float] = {}
@@ -344,7 +367,9 @@ async def query_stream(request: Request, req: QueryRequest) -> StreamingResponse
     latency["retrieve_ms"] = (time.perf_counter() - t0) * 1000
 
     t0 = time.perf_counter()
-    top_docs = await run_in_threadpool(reranker.rerank, req.question, all_candidates, req.top_k)
+    top_docs = await run_in_threadpool(
+        reranker.rerank, req.question, all_candidates, req.top_k
+    )
     latency["rerank_ms"] = (time.perf_counter() - t0) * 1000
 
     context_text = format_context(top_docs)
@@ -393,7 +418,9 @@ async def ingest(req: IngestRequest, background_tasks: BackgroundTasks) -> dict:
         }
 
     # Fallback to in-process background task
-    background_tasks.add_task(_run_ingestion_pipeline, tickers=req.tickers, num_filings=req.num_filings)
+    background_tasks.add_task(
+        _run_ingestion_pipeline, tickers=req.tickers, num_filings=req.num_filings
+    )
     logger.info(f"Started background ingestion {job_id} for: {req.tickers}")
     return {
         "job_id": job_id,
@@ -408,9 +435,12 @@ async def ingest(req: IngestRequest, background_tasks: BackgroundTasks) -> dict:
 async def ingest_status(job_id: str) -> dict:
     """Poll status of a queued ingestion job. Requires Redis."""
     if ingest_queue is None:
-        raise HTTPException(status_code=404, detail="Job tracking requires Redis (set REDIS_URL)")
+        raise HTTPException(
+            status_code=404, detail="Job tracking requires Redis (set REDIS_URL)"
+        )
     try:
         from rq.job import Job
+
         job = Job.fetch(job_id, connection=ingest_queue.connection)
         return {
             "job_id": job_id,
@@ -423,6 +453,7 @@ async def ingest_status(job_id: str) -> dict:
 
 
 # ── Background ingestion task ─────────────────────────────────────────────────
+
 
 def _run_ingestion_pipeline(tickers: list[str], num_filings: int) -> dict:
     """
@@ -438,7 +469,9 @@ def _run_ingestion_pipeline(tickers: list[str], num_filings: int) -> dict:
         all_chunks = []
 
         for ticker_dir in filing_dirs:
-            filing_files = list(ticker_dir.rglob("*.htm")) + list(ticker_dir.rglob("*.pdf"))
+            filing_files = list(ticker_dir.rglob("*.htm")) + list(
+                ticker_dir.rglob("*.pdf")
+            )
             for filing_file in filing_files[:num_filings]:
                 try:
                     text, metadata = extract_text_from_filing(filing_file)

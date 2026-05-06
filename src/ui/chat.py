@@ -5,6 +5,7 @@ src/ui/chat.py — Chat rendering with rich source cards and streaming support.
 from __future__ import annotations
 
 import logging
+from typing import TYPE_CHECKING
 
 import streamlit as st
 
@@ -16,22 +17,25 @@ from src.ui.charts import (
 )
 from src.utils.api_client import APIClient
 
+if TYPE_CHECKING:
+    from src.ui.sidebar import SidebarConfig
+
 logger = logging.getLogger(__name__)
 
 TICKER_COLORS: dict[str, str] = {
-    "AAPL":  "#6e6e6e",
-    "MSFT":  "#00a4ef",
+    "AAPL": "#6e6e6e",
+    "MSFT": "#00a4ef",
     "GOOGL": "#4285f4",
-    "AMZN":  "#ff9900",
-    "NVDA":  "#76b900",
+    "AMZN": "#ff9900",
+    "NVDA": "#76b900",
 }
 
 TICKER_BG: dict[str, str] = {
-    "AAPL":  "rgba(110,110,110,0.15)",
-    "MSFT":  "rgba(0,164,239,0.12)",
+    "AAPL": "rgba(110,110,110,0.15)",
+    "MSFT": "rgba(0,164,239,0.12)",
     "GOOGL": "rgba(66,133,244,0.12)",
-    "AMZN":  "rgba(255,153,0,0.12)",
-    "NVDA":  "rgba(118,185,0,0.12)",
+    "AMZN": "rgba(255,153,0,0.12)",
+    "NVDA": "rgba(118,185,0,0.12)",
 }
 
 
@@ -55,8 +59,8 @@ def render_sources(sources: list[Source]) -> None:
         tickers = sorted({s.ticker for s in sources})
         ticker_pills = " ".join(
             f'<span style="background:{TICKER_BG.get(t, "rgba(79,142,247,0.12)")}; '
-            f'border:1px solid {TICKER_COLORS.get(t, "#4f8ef7")}40; '
-            f'color:{TICKER_COLORS.get(t, "#4f8ef7")}; '
+            f"border:1px solid {TICKER_COLORS.get(t, '#4f8ef7')}40; "
+            f"color:{TICKER_COLORS.get(t, '#4f8ef7')}; "
             f'padding:2px 8px; border-radius:12px; font-size:11px; font-weight:600">{t}</span>'
             for t in tickers
         )
@@ -77,16 +81,19 @@ def render_sources(sources: list[Source]) -> None:
 
         # Source cards
         for i, src in enumerate(sources):
-            color  = TICKER_COLORS.get(src.ticker, "#4f8ef7")
-            bg     = TICKER_BG.get(src.ticker, "rgba(79,142,247,0.08)")
-            score  = src.rerank_score
-            bar_w  = int(score * 100)
-            score_color = "#34d399" if score >= 0.7 else "#fbbf24" if score >= 0.4 else "#f87171"
+            color = TICKER_COLORS.get(src.ticker, "#4f8ef7")
+            bg = TICKER_BG.get(src.ticker, "rgba(79,142,247,0.08)")
+            score = src.rerank_score
+            bar_w = int(score * 100)
+            score_color = (
+                "#34d399" if score >= 0.7 else "#fbbf24" if score >= 0.4 else "#f87171"
+            )
             preview = src.chunk_text[:260].replace("<", "&lt;").replace(">", "&gt;")
             if len(src.chunk_text) > 260:
                 preview += "…"
 
-            st.markdown(f"""
+            st.markdown(
+                f"""
 <div style="
     background: #0a111e;
     border: 1px solid #1a2235;
@@ -109,7 +116,7 @@ def render_sources(sources: list[Source]) -> None:
                 letter-spacing:0.5px;
             ">{src.ticker}</span>
             <span style="color:#6b7a99; font-size:12px; font-weight:500;">10-K · {src.filing_date}</span>
-            <span style="color:#3d4f6b; font-size:11px;">Chunk #{i+1}</span>
+            <span style="color:#3d4f6b; font-size:11px;">Chunk #{i + 1}</span>
         </div>
         <div style="text-align:right;">
             <span style="font-size:11px; color:{score_color}; font-weight:600;">
@@ -136,12 +143,14 @@ def render_sources(sources: list[Source]) -> None:
         "{preview}"
     </div>
 </div>
-""", unsafe_allow_html=True)
+""",
+                unsafe_allow_html=True,
+            )
 
 
 def process_question(
     question: str,
-    config: "SidebarConfig",  # noqa: F821
+    config: SidebarConfig,
     client: APIClient,
 ) -> ChatMessage:
     request = QueryRequest(
@@ -178,9 +187,10 @@ def _render_streaming(
     client: APIClient,
 ) -> tuple[str, list[Source], LatencyBreakdown]:
     status_el = st.empty()
-    text_el   = st.empty()
+    text_el = st.empty()
 
-    status_el.markdown("""
+    status_el.markdown(
+        """
     <div style="display:flex;align-items:center;gap:10px;color:#6b7a99;font-size:13px;">
         <span style="
             display:inline-block;width:8px;height:8px;
@@ -190,7 +200,9 @@ def _render_streaming(
         Searching SEC filings…
     </div>
     <style>@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}</style>
-    """, unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
 
     full_text = ""
     sources: list[Source] = []

@@ -55,9 +55,9 @@ def get_llm(provider: str = "ollama") -> BaseLanguageModel:
         # Ollama runs locally — no API key needed
         # Install at: https://ollama.ai, then run: ollama pull llama3.2
         try:
-            from langchain_ollama import OllamaLLM as Ollama  # Preferred (langchain >= 0.3.1)
+            from langchain_ollama import OllamaLLM as Ollama
         except ImportError:
-            from langchain_community.llms import Ollama  # Fallback for older installs
+            from langchain_community.llms import Ollama  # type: ignore[no-redef]
 
         logger.info(f"Using Ollama with model: {settings.OLLAMA_MODEL}")
         return Ollama(
@@ -68,6 +68,7 @@ def get_llm(provider: str = "ollama") -> BaseLanguageModel:
     elif provider == "groq":
         # Groq: fastest cloud inference, free tier at console.groq.com
         from langchain_groq import ChatGroq
+        from pydantic import SecretStr
 
         if not settings.GROQ_API_KEY:
             raise ValueError(
@@ -77,7 +78,7 @@ def get_llm(provider: str = "ollama") -> BaseLanguageModel:
         logger.info("Using Groq with model: llama-3.3-70b-versatile")
         return ChatGroq(
             model="llama-3.3-70b-versatile",
-            api_key=settings.GROQ_API_KEY,
+            api_key=SecretStr(settings.GROQ_API_KEY),
             temperature=0.1,  # Low temperature = more factual, less creative
         )
 
@@ -123,28 +124,30 @@ def get_streaming_llm(provider: str = "ollama") -> BaseLanguageModel:
         try:
             from langchain_ollama import OllamaLLM as Ollama
         except ImportError:
-            from langchain_community.llms import Ollama
+            from langchain_community.llms import Ollama  # type: ignore[no-redef]
         logger.info(f"Using streaming Ollama: {settings.OLLAMA_MODEL}")
         return Ollama(
             model=settings.OLLAMA_MODEL,
             base_url=settings.OLLAMA_BASE_URL,
-            streaming=True,
         )
 
     elif provider == "groq":
         from langchain_groq import ChatGroq
+        from pydantic import SecretStr
+
         if not settings.GROQ_API_KEY:
             raise ValueError("GROQ_API_KEY is not set.")
         logger.info("Using streaming Groq: llama-3.3-70b-versatile")
         return ChatGroq(
             model="llama-3.3-70b-versatile",
-            api_key=settings.GROQ_API_KEY,
+            api_key=SecretStr(settings.GROQ_API_KEY),
             temperature=0.1,
             streaming=True,
         )
 
     elif provider == "gemini":
         from langchain_google_genai import ChatGoogleGenerativeAI
+
         if not settings.GOOGLE_API_KEY:
             raise ValueError("GOOGLE_API_KEY is not set.")
         logger.info("Using streaming Gemini: gemini-1.5-flash")
