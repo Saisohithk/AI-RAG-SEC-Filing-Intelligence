@@ -6,6 +6,8 @@
 [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://ai-rag-sec-filing-intelligence.streamlit.app)
 &nbsp;
 [![Deploy on Streamlit](https://img.shields.io/badge/Deploy-Streamlit%20Cloud-ff4b4b?logo=streamlit&logoColor=white)](https://share.streamlit.io/new?repository=Saisohithk/AI-RAG-SEC-Filing-Intelligence&branch=main&mainModule=main.py)
+&nbsp;
+[![API Deployed on Render](https://img.shields.io/badge/API-Render-46E3B7?logo=render&logoColor=white)](https://sec-rag-api.onrender.com)
 
 ---
 
