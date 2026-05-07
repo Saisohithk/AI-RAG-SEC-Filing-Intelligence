@@ -11,7 +11,7 @@
 
 ## Live Demo
 
-**[https://ai-rag-sec-filing-intelligence.streamlit.app](https://ai-rag-sec-filing-intelligence.streamlit.app)**
+**Demo Link: [AI-RAG-SEC-Filing-Intelligence](https://ai-rag-sec-filing-intelligence.streamlit.app/)**
 
 > The live demo connects to a deployed FastAPI backend running the full RAG pipeline:
 > hybrid BM25 + vector search → BGE reranker → Groq LLM (500+ tok/s).
