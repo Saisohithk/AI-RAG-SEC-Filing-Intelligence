@@ -3,6 +3,19 @@
 > A production-grade Retrieval-Augmented Generation (RAG) system that answers natural language
 > questions about public companies using their official SEC 10-K annual filings.
 
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://ai-rag-sec-filing-intelligence.streamlit.app)
+&nbsp;
+[![Deploy on Streamlit](https://img.shields.io/badge/Deploy-Streamlit%20Cloud-ff4b4b?logo=streamlit&logoColor=white)](https://share.streamlit.io/new?repository=Saisohithk/AI-RAG-SEC-Filing-Intelligence&branch=main&mainModule=main.py)
+
+---
+
+## Live Demo
+
+**[https://ai-rag-sec-filing-intelligence.streamlit.app](https://ai-rag-sec-filing-intelligence.streamlit.app)**
+
+> The live demo connects to a deployed FastAPI backend running the full RAG pipeline:
+> hybrid BM25 + vector search → BGE reranker → Groq LLM (500+ tok/s).
+
 ---
 
 ## Architecture
@@ -174,6 +187,36 @@ sec-rag/
 └── data/
     └── sec_filings/             # Downloaded SEC EDGAR filings (AAPL MSFT GOOGL AMZN NVDA)
 ```
+
+---
+
+## Deploy to Streamlit Cloud
+
+The Streamlit UI is a thin HTTP client — it has no ML models and deploys in under 2 minutes.
+
+### Step 1 — Deploy the FastAPI backend (Render.com)
+
+1. Go to [render.com](https://render.com) → **New → Web Service**
+2. Connect the GitHub repo `Saisohithk/AI-RAG-SEC-Filing-Intelligence`
+3. Set **Runtime** to **Docker** (uses the existing `Dockerfile`)
+4. Add environment variables (from your `.env`):
+   - `GROQ_API_KEY` or `GOOGLE_API_KEY`
+   - `PINECONE_API_KEY` + `PINECONE_INDEX_NAME`
+   - `USE_LOCAL_CHROMA=false`
+5. Deploy — note the URL: `https://your-app.onrender.com`
+
+### Step 2 — Deploy the Streamlit UI (Streamlit Cloud)
+
+1. Go to [share.streamlit.io](https://share.streamlit.io) → **New app**
+2. Select repo `Saisohithk/AI-RAG-SEC-Filing-Intelligence`, branch `main`, file `main.py`
+3. Click **Advanced settings**:
+   - **Requirements file**: `requirements_streamlit.txt`
+   - **Secrets** (TOML format):
+     ```toml
+     API_URL = "https://your-app.onrender.com"
+     ```
+4. Click **Deploy** — your live URL will be `https://[name].streamlit.app`
+5. Update the badge at the top of this README with your live URL.
 
 ---
 

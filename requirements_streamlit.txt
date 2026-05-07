@@ -1,0 +1,16 @@
+# ============================================================
+# Streamlit Cloud deployment — UI-only dependencies
+# The Streamlit frontend is a pure HTTP client (no ML models).
+# All heavy packages (torch, sentence-transformers, chromadb)
+# live in requirements.txt and are only needed by the API server.
+#
+# In Streamlit Cloud → Advanced settings → Requirements file:
+#   requirements_streamlit.txt
+# ============================================================
+
+streamlit==1.40.1
+plotly==6.7.0
+requests==2.33.1
+pydantic==2.12.5
+pydantic-settings==2.13.1
+python-dotenv==1.2.2
